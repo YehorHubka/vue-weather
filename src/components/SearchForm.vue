@@ -10,13 +10,6 @@
       id="autocomplete"
       ref="search"
     />
-    <!-- <datalist id="cities">
-      <option value="Edge"></option>
-      <option value="Firefox"></option>
-      <option value="Chrome"></option>
-      <option value="Opera"></option>
-      <option value="Safari"></option>
-    </datalist> -->
     <button :disabled="!modelValue" type="submit" class="search-form__submit">
       + Add
     </button>

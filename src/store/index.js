@@ -51,7 +51,7 @@ export default createStore({
   },
   actions: {
     async geocodingCityInfo({ _ }, cityName) {
-      let geocodingAPIUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${process.env.VUE_APP_GEO_API_KEY}`
+      let geocodingAPIUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${process.env.VUE_APP_GEO_API_KEY}`
       let cityGeoData = null
 
       try {

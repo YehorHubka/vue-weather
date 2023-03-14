@@ -21,4 +21,10 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
+@media (max-width: 767px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
 </style>

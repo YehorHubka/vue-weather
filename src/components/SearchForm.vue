@@ -1,15 +1,5 @@
 <template>
   <form class="search-form" @submit.prevent="addCard(cityName)">
-    <!-- <input
-      v-on:input="$emit('update:modelValue', $event.target.value)"
-      :value="modelValue"
-      type="text"
-      class="search-form__input"
-      placeholder="City name..."
-      id="autocomplete"
-      ref="search"
-      :disabled="cities.length === 5"
-    /> -->
     <vue-google-autocomplete
       classname="search-form__input"
       @placechanged="getAddressData"

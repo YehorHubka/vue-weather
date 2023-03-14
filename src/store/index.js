@@ -42,7 +42,6 @@ export default createStore({
     },
     setToFavorites(state, id) {
       state.cities.find((city) => {
-        //console.log("city", city)
         if (city.id === id) city.favorite = true
       })
     },
@@ -69,7 +68,6 @@ export default createStore({
     async getCityInfo({ commit, dispatch }, cityName) {
       commit("setLoading", true)
 
-      //console.log("cityName", cityName)
       let cityGeoData = null
 
       if (typeof cityName == "string") {
@@ -93,8 +91,6 @@ export default createStore({
         console.log("error: ", error.message)
       }
 
-      //console.log("cityData", cityData)
-
       commit("setCities", cityData)
 
       let dataHourlyAPIUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${cityGeoData.lat}&lon=${cityGeoData.lon}&exclude=daily,minutely&appid=${process.env.VUE_APP_GEO_API_KEY}`
@@ -110,8 +106,6 @@ export default createStore({
       } catch (error) {
         console.log("error: ", error.message)
       }
-
-      //console.log("hourlyCityData", hourlyCityData)
 
       commit("setHourlyCityData", hourlyCityData)
       commit("setLoading", false)

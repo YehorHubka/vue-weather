@@ -4,9 +4,21 @@ export default createStore({
   state: {
     cities: [],
     loading: false,
+    hourlyCityData: null,
+    citiesFromLocalStorageLength: JSON.parse(
+      localStorage.getItem("favoritesList") || "[]"
+    ).length,
   },
-  getters: {},
   mutations: {
+    incriseCitiesFromLocalStorageLength(state) {
+      state.citiesFromLocalStorageLength++
+    },
+    resetFavorutes(state) {
+      state.cities.forEach((i) => (i.favorite = false))
+    },
+    decreaseCitiesFromLocalStorageLength(state) {
+      state.citiesFromLocalStorageLength--
+    },
     setCities(state, city) {
       state.cities.push(city)
     },
@@ -18,28 +30,18 @@ export default createStore({
     },
     addCityToFavorites(state, id) {
       state.cities.find((city) => {
-        city.id === id && city.favorite === false
-          ? (city.favorite = true)
-          : (city.favorite = false)
+        if (city.id === id) {
+          city.favorite === false
+            ? (city.favorite = true)
+            : (city.favorite = false)
+        }
       })
+    },
+    setHourlyCityData(state, payload) {
+      state.hourlyCityData = payload
     },
   },
   actions: {
-    async getCityName({ _ }, cityName) {
-      let geocodingAPIUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=10&appid=${process.env.VUE_APP_GEO_API_KEY}`
-      let cities = null
-
-      try {
-        await fetch(geocodingAPIUrl)
-          .then((response) => response.json())
-          .then((data) => (cities = data))
-      } catch (error) {
-        console.log("error: ", error.message)
-      }
-
-      console.log("data: ", cities)
-    },
-
     async geocodingCityInfo({ _ }, cityName) {
       let geocodingAPIUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${process.env.VUE_APP_GEO_API_KEY}`
       let cityGeoData = null
@@ -55,10 +57,10 @@ export default createStore({
       return cityGeoData
     },
 
-    async getCityInfo({ commit }, cityName) {
-      this.commit("setLoading", true)
+    async getCityInfo({ commit, dispatch }, cityName) {
+      commit("setLoading", true)
 
-      const cityGeoData = await this.dispatch("geocodingCityInfo", cityName)
+      const cityGeoData = await dispatch("geocodingCityInfo", cityName)
 
       let dataAPIUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${cityGeoData.lat}&lon=${cityGeoData.lon}&appid=${process.env.VUE_APP_GEO_API_KEY}`
       let cityData = null
@@ -75,9 +77,23 @@ export default createStore({
         console.log("error: ", error.message)
       }
 
-      this.commit("setCities", cityData)
-      this.commit("setLoading", false)
+      commit("setCities", cityData)
+
+      let dataHourlyAPIUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${cityGeoData.lat}&lon=${cityGeoData.lon}&exclude=daily,minutely&appid=${process.env.VUE_APP_GEO_API_KEY}`
+      let hourlyCityData = null
+
+      try {
+        await fetch(dataHourlyAPIUrl)
+          .then((response) => response.json())
+          .then(
+            (data) => (hourlyCityData = Object.assign({}, data, cityGeoData))
+          )
+      } catch (error) {
+        console.log("error: ", error.message)
+      }
+
+      commit("setHourlyCityData", hourlyCityData)
+      commit("setLoading", false)
     },
   },
-  modules: {},
 })

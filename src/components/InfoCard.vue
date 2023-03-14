@@ -9,35 +9,46 @@
       {{ data.weather[0].description }})
     </div>
     <button
-      @click="addToFavorites(data.id)"
+      @click="$emit('addToFavorites', data.id)"
       type="button"
       class="city-card__favorites-btn"
       :class="{ active: data.favorite }"
     ></button>
     <button
-      @click="removeCity(data.id)"
+      @click="openModal = true"
       type="button"
       class="city-card__delete-btn"
     ></button>
+
+    <Modal
+      :openModal="openModal"
+      title="Are you shure you want to remove this card?"
+      @close="(val) => (openModal = val)"
+    >
+      <div class="buttons-wrapper">
+        <Button @click="$emit('removeCity', data.id)">Remove</Button>
+        <Button styling="danger" @click="openModal = false">Cancel</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import Modal from "../components/Modal.vue";
+import Button from "../components/Button.vue";
 
 export default {
+  data() {
+    return {
+      openModal: false,
+    };
+  },
+  emits: ["removeCity", "addToFavorites"],
   props: {
     data: Object,
   },
-  methods: {
-    ...mapMutations(["removeCity", "addCityToFavorites"]),
-    removeCity(id) {
-      this.$store.commit("removeCity", id);
-    },
-    addToFavorites(id) {
-      this.$store.commit("addCityToFavorites", id);
-    },
-  },
+  methods: {},
+  components: { Modal, Button },
 };
 </script>
 
@@ -46,7 +57,8 @@ export default {
   border: 1px solid #eee;
   padding: 30px 10px;
   text-align: center;
-  width: calc(25% - 15px);
+  width: calc(25% - 30px);
+  margin: 0 15px 30px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   position: relative;
@@ -98,6 +110,29 @@ export default {
     &:hover {
       transform: scale(1.1);
     }
+  }
+}
+.buttons-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  & .btn {
+    width: 100%;
+  }
+}
+@media (max-width: 991px) {
+  .city-card {
+    width: calc(100% / 3 - 30px);
+  }
+}
+@media (max-width: 767px) {
+  .city-card {
+    width: calc(50% - 30px);
+  }
+}
+@media (max-width: 480px) {
+  .city-card {
+    width: 100%;
   }
 }
 </style>

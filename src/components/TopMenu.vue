@@ -1,9 +1,37 @@
 <template>
   <nav>
     <router-link to="/">Home</router-link>
-    <router-link to="/favorites">Favorites</router-link>
+    <router-link to="/favorites"
+      >Favorites
+      <span v-if="citiesFromLocalStorageLength"
+        >({{ citiesFromLocalStorageLength }})</span
+      ></router-link
+    >
   </nav>
 </template>
+
+<script>
+import { mapState } from "vuex";
+
+export default {
+  data() {
+    return {
+      favoritesFromLS: [],
+    };
+  },
+  computed: {
+    ...mapState(["citiesFromLocalStorageLength"]),
+    favoritesLength() {
+      return this.cities.filter((i) => i.favorite === true).length;
+    },
+  },
+  mounted() {
+    this.favoritesFromLS = JSON.parse(
+      localStorage.getItem("favoritesList") || "[]"
+    ).length;
+  },
+};
+</script>
 
 <style lang="scss" scoped>
 nav {

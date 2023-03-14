@@ -9,14 +9,18 @@
       placeholder="City name..."
       id="autocomplete"
       ref="search"
+      :disabled="cities.length === 5"
     />
-    <button :disabled="!modelValue" type="submit" class="search-form__submit">
+    <Button :disabled="!modelValue || cities.length === 5" type="submit">
       + Add
-    </button>
+    </Button>
   </form>
 </template>
 
 <script>
+import Button from "../components/Button.vue";
+import { mapState } from "vuex";
+
 export default {
   emits: ["addCard", "update:modelValue"],
   props: {
@@ -27,6 +31,10 @@ export default {
       types: ["(cities)"],
     });
   },
+  computed: {
+    ...mapState(["cities"]),
+  },
+  components: { Button },
 };
 </script>
 
@@ -47,26 +55,8 @@ export default {
       border-color: #ccc;
     }
   }
-  &__submit {
-    background: #42b983;
-    padding: 0 15px;
-    height: 50px;
+  & .btn {
     border-radius: 0 10px 10px 0;
-    color: #fff;
-    border: 0;
-    white-space: nowrap;
-    font-weight: bold;
-    font-size: 18px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s all ease;
-    &:hover {
-      background: #000;
-    }
-    &:disabled {
-      cursor: default;
-      background: #eee;
-    }
   }
 }
 input::-webkit-input-placeholder,

@@ -14,21 +14,8 @@
 import { mapState } from "vuex";
 
 export default {
-  data() {
-    return {
-      favoritesFromLS: [],
-    };
-  },
   computed: {
     ...mapState(["citiesFromLocalStorageLength"]),
-    favoritesLength() {
-      return this.cities.filter((i) => i.favorite === true).length;
-    },
-  },
-  mounted() {
-    this.favoritesFromLS = JSON.parse(
-      localStorage.getItem("favoritesList") || "[]"
-    ).length;
   },
 };
 </script>

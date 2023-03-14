@@ -4,7 +4,7 @@
     <div class="search-field">
       <div class="search-field__error" v-if="error">{{ error }}</div>
 
-      <SearchForm @addCard="addCard" v-model="choosenCity" />
+      <SearchForm @addCard="addCard" />
 
       <div class="search-field__disable-info" v-if="cities.length === 5">
         Yon can add only <b>5</b> cities. <br />
@@ -29,9 +29,8 @@
 
       <div class="chart-block" v-if="cities.length">
         <h3 class="chart-block__title">
-          {{ hourlyCityData.name }} ({{ hourlyCityData.country }}) <br /><small
-            >(hourly weather info on 24 hours)</small
-          >
+          {{ hourlyCityData.name }} ({{ hourlyCityData.sys.country }})
+          <br /><small>(hourly weather info on 24 hours)</small>
         </h3>
         <Chart :hourlyData="hourlyCityData" />
       </div>
@@ -52,10 +51,10 @@ export default {
   name: "HomeView",
   data() {
     return {
-      choosenCity: "",
       error: "",
       hourly: null,
       favoritesList: [],
+      defaultLocation: {},
     };
   },
   methods: {
@@ -66,9 +65,11 @@ export default {
       "resetFavorutes",
     ]),
     ...mapMutations([
+      "setToFavorites",
       "removeCity",
       "addCityToFavorites",
       "incriseCitiesFromLocalStorageLength",
+      "decreaseCitiesFromLocalStorageLength",
     ]),
     removeCity(id) {
       this.$store.commit("removeCity", id);
@@ -76,35 +77,60 @@ export default {
     },
     addToFavorites(id) {
       this.$store.commit("addCityToFavorites", id);
-      this.$store.commit("incriseCitiesFromLocalStorageLength");
+
+      if (this.cities.find((i) => i.id == id).favorite) {
+        this.$store.commit("incriseCitiesFromLocalStorageLength");
+      } else {
+        this.$store.commit("decreaseCitiesFromLocalStorageLength");
+      }
 
       this.favoritesList = this.cities.filter((i) => i.favorite === true);
       localStorage.setItem("favoritesList", JSON.stringify(this.favoritesList));
     },
-    async addCard() {
+    async addCard(name) {
       try {
-        await this.$store.dispatch("getCityInfo", this.choosenCity);
+        await this.$store.dispatch("getCityInfo", name);
         this.error = "";
       } catch (error) {
         console.log("add card error: ", error.message);
         this.error = "There is some mistake in city name. Try again!";
       }
-      this.choosenCity = "";
     },
   },
-  watch: {},
   components: { SearchForm, Loader, InfoCard, Chart },
   computed: {
     ...mapState(["cities", "loading", "hourlyCityData"]),
   },
   async created() {
-    this.$store.commit("resetFavorutes");
+    //check favorites enable after routing to set favorites an cityList in store
+    if (JSON.parse(localStorage.getItem("favoritesList") || "[]").length) {
+      JSON.parse(localStorage.getItem("favoritesList") || "[]").map((i) => {
+        this.$store.commit("resetFavorutes");
+        this.$store.commit("setToFavorites", i.id);
+      });
+    } else {
+      this.$store.commit("resetFavorutes");
+    }
+
+    //geolocation
     if (!this.cities.length) {
-      let defaultCity = "Kharkiv";
-      await this.$store.dispatch("getCityInfo", defaultCity);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            // console.log("lat: ", position.coords.latitude);
+            // console.log("lng: ", position.coords.longitude);
+            await this.$store.dispatch("getCityInfo", {
+              lat: position.coords.latitude,
+              lon: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.log("geo error: ", error.message);
+          }
+        );
+      }
     }
   },
-  mounted() {},
 };
 </script>
 

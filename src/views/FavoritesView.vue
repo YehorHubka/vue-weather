@@ -64,12 +64,8 @@ export default {
   justify-content: center;
   flex-wrap: wrap;
   margin: 0 -15px;
-  &:deep {
-    & .city-card {
-      &__favorites-btn {
-        display: none;
-      }
-    }
+  &:deep(.city-card__favorites-btn) {
+    display: none;
   }
 }
 .list-empty {

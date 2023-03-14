@@ -1,6 +1,6 @@
 <template>
   <div class="city-card">
-    <div class="city-card__name">{{ data.name }} ({{ data.country }})</div>
+    <div class="city-card__name">{{ data.name }} ({{ data.sys.country }})</div>
     <div class="city-card__temp">
       {{ Math.round(data.main.temp - 273.15) }}°C
     </div>
@@ -70,6 +70,9 @@ export default {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   &__temp {
     font-size: 36px;

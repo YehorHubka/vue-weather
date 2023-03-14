@@ -1,17 +1,26 @@
 <template>
-  <form class="search-form" @submit.prevent="$emit('addCard')">
-    <input
+  <form class="search-form" @submit.prevent="addCard(cityName)">
+    <!-- <input
       v-on:input="$emit('update:modelValue', $event.target.value)"
       :value="modelValue"
-      list="cities"
       type="text"
       class="search-form__input"
       placeholder="City name..."
       id="autocomplete"
       ref="search"
       :disabled="cities.length === 5"
-    />
-    <Button :disabled="!modelValue || cities.length === 5" type="submit">
+    /> -->
+    <vue-google-autocomplete
+      classname="search-form__input"
+      @placechanged="getAddressData"
+      placeholder="City name..."
+      id="autocomplete"
+      :disabled="cities.length === 5"
+      types="(cities)"
+      ref="search"
+    >
+    </vue-google-autocomplete>
+    <Button :disabled="!cityName || cities.length === 5" type="submit">
       + Add
     </Button>
   </form>
@@ -19,22 +28,32 @@
 
 <script>
 import Button from "../components/Button.vue";
+import VueGoogleAutocomplete from "vue-google-autocomplete";
 import { mapState } from "vuex";
 
 export default {
-  emits: ["addCard", "update:modelValue"],
-  props: {
-    modelValue: String,
-  },
+  emits: ["addCard"],
   mounted() {
-    new google.maps.places.Autocomplete(this.$refs.search, {
-      types: ["(cities)"],
-    });
+    this.$refs.search.focus();
+  },
+  data() {
+    return {
+      cityName: "",
+    };
+  },
+  methods: {
+    getAddressData: function (addressData) {
+      this.cityName = addressData.locality;
+    },
+    addCard(name) {
+      this.$emit("addCard", name);
+      this.$refs.search.clear();
+    },
   },
   computed: {
     ...mapState(["cities"]),
   },
-  components: { Button },
+  components: { Button, VueGoogleAutocomplete },
 };
 </script>
 
